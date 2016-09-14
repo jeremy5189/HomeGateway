@@ -19,6 +19,7 @@
   "dependencies": {
     "express": "^4.14.0",
     "express-ws": "^2.0.0",
+    "moment": "^2.15.0",
     "sensortag": "^1.2.2"
   }
 }
