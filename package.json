@@ -1,0 +1,24 @@
+{
+  "name": "homegateway",
+  "version": "1.0.0",
+  "description": "Raspberry Pi Home Gateway, Currently supports QR Code reader, Electro Lock and TI Sensortag",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremy5189/HomeGateway.git"
+  },
+  "author": "Goodlab",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jeremy5189/HomeGateway/issues"
+  },
+  "homepage": "https://github.com/jeremy5189/HomeGateway#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "express-ws": "^2.0.0",
+    "sensortag": "^1.2.2"
+  }
+}
