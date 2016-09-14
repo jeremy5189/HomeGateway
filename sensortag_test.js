@@ -46,6 +46,7 @@ SensorTag.discover(function(tag) {
 
 	function connectAndSetUpMe() {			// attempt to connect to the tag
     	//console.log('connectAndSetUp');
+    	console.log(tag);
     	tag.connectAndSetUp(enableService);		// when you connect and device is setup, call enableAccelMe
     	//console.log('TAG UUID = ' + tag.uuid);
     	//console.log('TAG ADDRESS = ' + tag.address);

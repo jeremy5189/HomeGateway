@@ -5,6 +5,9 @@ var express  = require('express'),
     app      = express(),
     PORT     = 3000;
 
+// Web Socket Support
+var expressWs = require('express-ws')(app);
+
 global.DOC_ROOT = '/home/pi/DoorServer';
 global.logging = function(str) {
 
@@ -33,10 +36,13 @@ global.run_cmd = function (cmd, args, callback) {
 // Load Module 
 // ------------------
 var lock  = require('./routes/lock'),
-    photo = require('./routes/photo');
+    photo = require('./routes/photo'),
+    sensortag = require('./routes/sensortag');
 
 app.use('/lock', lock);
 app.use('/photo', photo);
+app.use('/sensortag', sensortag);
+
 
 // ------------------
 // Index 
