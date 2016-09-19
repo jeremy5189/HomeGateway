@@ -8,16 +8,25 @@ var express  = require('express'),
 // Web Socket Support
 var expressWs = require('express-ws')(app);
 
-global.DOC_ROOT = '/home/pi/DoorServer';
-global.logging = function(str) {
+global.DOC_ROOT = '/home/pi/HomeGateway';
+global.logging = function (str) {
 
     var moment = require('moment'),
         now    = moment().format("YYYY-MM-DD HH:mm:ss");
 
     console.log('[%s] %s', now, str);
+
+}
+global.sound   = function (str) {
+
+    global.run_cmd('aplay', [ global.DOC_ROOT + '/sound/' + str + '.wav']);
+
 }
 global.run_cmd = function (cmd, args, callback) {
     
+    global.logging('cmd = ' + cmd);
+    console.log(args);
+
     var spawn = require('child_process').spawn,
         child = spawn(cmd, args),
         resp = "";
@@ -58,13 +67,4 @@ app.listen(PORT, function () {
     
     logging('HomeGateway listening on port 3000');
     
-    // Init GPIO
-    run_cmd( DOC_ROOT + '/scripts/init.sh', [], function(){});
-
-    // Lock on Init
-    run_cmd( DOC_ROOT + '/scripts/lock.sh', [], function(){});
-
-    // Play Init Sound
-    run_cmd('aplay', ['/home/pi/DoorServer/sound/init_lock.wav']);
-
 });

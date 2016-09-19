@@ -6,10 +6,10 @@ global.logging('Loading photo module');
 // ------------------
 // Get Record Photo
 // ------------------
-router.get('/photo/:event/:timestamp', function(req, res) {
+router.get('/record', function(req, res) {
 
-  var event 	  = req.params.event,
-      timestamp = req.params.timestamp;
+  var event 	= 'open',
+      timestamp = req.query.ts;
 
   global.logging(event);
   global.logging(timestamp);
@@ -54,8 +54,7 @@ router.get('/photo', function(req, res) {
         '800',
         '-h',
         '600',
-        '-hf', 
-        '-vf',
+	'-hf',
         '-n'
     ], function() {
 
