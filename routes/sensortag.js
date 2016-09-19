@@ -3,9 +3,10 @@ var express   = require('express'),
 	SensorTag = require('sensortag'),
 	device_info = {},
 	_tag		= null,
-	_log_every  = false; 
+	_log_every  = false;
 
 global.logging('Loading sensortag module');
+global.sound('starting_ble_module');
 
 // listen for tags
 SensorTag.discover(tagDiscovery);
@@ -94,20 +95,25 @@ router.ws('/irTemperature', function(ws, req) {
 
 });
 
+
+
 function tagDiscovery(tag) {
+
+	//SensorTag.stopDiscoverAll(function() {});
+	global.sound('discover_sensortag');
 	
 	tag.on('disconnect', function() {
 
 		global.logging('SensorTag disconnected!');
-
-		// Restarting discovery
-		SensorTag.discover(tagDiscovery);
+		global.sound('sensortag_disconnected');
+		process.exit(0);
 	});
 
 	function connectAndSetUpMe() {			// attempt to connect to the tag
     	
     	global.logging('SensorTag connectAndSetUp');
-    	
+		global.sound('enable_sensortag_services');    	
+
     	tag.connectAndSetUp(enableService);		// when you connect and device is setup, call enableAccelMe
     	
     	device_info = {
