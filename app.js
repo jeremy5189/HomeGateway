@@ -40,6 +40,14 @@ global.run_cmd = function (cmd, args, callback) {
         callback(resp) 
     });
 }
+
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+}
     
 // ------------------
 // Load Module 
@@ -51,6 +59,7 @@ var lock  = require('./routes/lock'),
 app.use('/lock', lock);
 app.use('/photo', photo);
 app.use('/sensortag', sensortag);
+app.use(allowCrossDomain);
 
 
 // ------------------

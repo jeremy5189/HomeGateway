@@ -1,9 +1,9 @@
 var express   = require('express'),
 	router    = express.Router(),
 	SensorTag = require('sensortag'),
-	device_info = {},
-	_tag		= null,
-	_log_every  = false;
+	device_info  = {},
+	_tag		 = null,
+	_log_every   = false;
 
 global.logging('Loading sensortag module');
 global.sound('starting_ble_module');
@@ -14,8 +14,24 @@ SensorTag.discover(tagDiscovery);
 // ------------------
 // Get Record Photo
 // ------------------
-router.get('/info', function(req, res) {
-	res.send(device_info);
+router.ws('/info', function(ws, req) {
+
+	global.logging('WebSocket Info Opened!');
+	
+	device_info.status = _tag._peripheral.state;
+	ws.send(JSON.stringify(device_info));
+
+	_tag.on('disconnect', function() {
+
+		global.logging('SensorTag disconnected!');
+		global.sound('sensortag_disconnected');
+		
+		device_info.status = 'disconnected';
+		ws.send(JSON.stringify(device_info));
+
+		process.exit(0);
+	});
+
 });
 
 // ------------------
@@ -72,6 +88,28 @@ router.ws('/humidity', function(ws, req) {
 	
 });
 
+router.ws('/barometricPressure', function(ws, req) {
+
+	global.logging('WebSocket barometricPressureChange Open!');
+
+	_tag.on('barometricPressureChange', function(pressure) {
+
+		if(_log_every) {
+			global.logging('pressure = ' + pressure);
+		}
+
+		ws.send(JSON.stringify({
+			pressure: pressure
+		}), function(error) {
+	   		if(error && _log_every){
+	   			console.error(error);
+	   		}
+	   	});
+
+	});
+
+});
+
 router.ws('/irTemperature', function(ws, req) {
 	
 	global.logging('WebSocket irTemperature Open!');
@@ -99,15 +137,8 @@ router.ws('/irTemperature', function(ws, req) {
 
 function tagDiscovery(tag) {
 
-	//SensorTag.stopDiscoverAll(function() {});
 	global.sound('discover_sensortag');
-	
-	tag.on('disconnect', function() {
 
-		global.logging('SensorTag disconnected!');
-		global.sound('sensortag_disconnected');
-		process.exit(0);
-	});
 
 	function connectAndSetUpMe() {			// attempt to connect to the tag
     	
@@ -140,6 +171,10 @@ function tagDiscovery(tag) {
     		tag.notifyIrTemperature();
     	});
 
+    	tag.enableBarometricPressure(function() {
+    		tag.notifyBarometricPressure();
+    	});
+
     	tag.notifySimpleKey(listenForButton);
     }
 
@@ -148,9 +183,11 @@ function tagDiscovery(tag) {
 		tag.on('simpleKeyChange', function(left, right) {
 			if (left) {
 				global.logging('left: ' + left);
+				global.run_cmd(DOC_ROOT + '/scripts/lock.sh', [], function(){});
 			}
 			if (right) {
 				global.logging('right: ' + right);
+				global.run_cmd(DOC_ROOT + '/scripts/unlock.sh', [], function(){});
 			}
 			// if both buttons are pressed, disconnect:
 			if (left && right) {
