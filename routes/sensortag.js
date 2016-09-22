@@ -5,13 +5,27 @@ var express   = require('express'),
 	_tag		 = null,
 	_log_every   = false,
 	device_connect  = false,
-	time_to_connect = 5000;
+	time_to_connect = 7000;
 
 global.logging('Loading sensortag module');
 
 process.on('uncaughtException', function(err) {
-	console.error('Caught exception: ' + err);
+	console.error('uncaughtException');
+	console.error(err);
+	process.exit(0);
 });
+
+console.warn = function(d) {
+
+	// Starts with
+	if ( d.lastIndexOf('noble warning', 0) === 0 ) {
+		console.error(d);
+		console.error('Intercept noble warning, restarting process...');
+		process.exit(0);
+	} else {
+    	process.stderr.write(d + '\n');
+   	}
+};
 
 // listen for tags
 SensorTag.discover(tagDiscovery);
