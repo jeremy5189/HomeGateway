@@ -8,8 +8,8 @@ import json
 import time
 
 device   = '/dev/video0'
-url      = 'http://192.168.2.1:8000'
-door_url = 'http://localhost:3000'
+url      = 'http://192.168.10.10'
+door_url = 'http://192.168.10.10:3000'
 doc_root = '/home/pi/HomeGateway/'
 
 def play_sound(str):

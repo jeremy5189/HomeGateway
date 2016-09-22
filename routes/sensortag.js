@@ -1,21 +1,37 @@
 var express   = require('express'),
 	router    = express.Router(),
 	SensorTag = require('sensortag'),
-	device_info = {},
-	_tag		= null,
-	_log_every  = false;
+	device_info  = {},
+	_tag		 = null,
+	_log_every   = false,
+	device_connect  = false,
+	time_to_connect = 5000;
 
 global.logging('Loading sensortag module');
-global.sound('starting_ble_module');
+
+process.on('uncaughtException', function(err) {
+	console.error('Caught exception: ' + err);
+});
 
 // listen for tags
 SensorTag.discover(tagDiscovery);
 
+
 // ------------------
 // Get Record Photo
 // ------------------
-router.get('/info', function(req, res) {
-	res.send(device_info);
+router.ws('/info', function(ws, req) {
+
+	global.logging('WebSocket Info Opened!');
+	
+	device_info.status = _tag._peripheral.state;
+	ws.send(JSON.stringify(device_info));
+
+	_tag.on('disconnect', function() {
+		device_info.status = 'disconnected';
+		ws.send(JSON.stringify(device_info));
+	});
+
 });
 
 // ------------------
@@ -72,6 +88,34 @@ router.ws('/humidity', function(ws, req) {
 	
 });
 
+// ------------------------------------
+// WebSocket Pressure 
+// ------------------------------------
+router.ws('/barometricPressure', function(ws, req) {
+
+	global.logging('WebSocket barometricPressureChange Open!');
+
+	_tag.on('barometricPressureChange', function(pressure) {
+
+		if(_log_every) {
+			global.logging('pressure = ' + pressure);
+		}
+
+		ws.send(JSON.stringify({
+			pressure: pressure
+		}), function(error) {
+	   		if(error && _log_every){
+	   			console.error(error);
+	   		}
+	   	});
+
+	});
+
+});
+
+// ------------------------------------
+// WebSocket irTemperature 
+// ------------------------------------
 router.ws('/irTemperature', function(ws, req) {
 	
 	global.logging('WebSocket irTemperature Open!');
@@ -96,25 +140,27 @@ router.ws('/irTemperature', function(ws, req) {
 });
 
 
-
 function tagDiscovery(tag) {
 
-	//SensorTag.stopDiscoverAll(function() {});
 	global.sound('discover_sensortag');
-	
+	// Now that you've defined all the functions, start the process:
+	connectAndSetUpMe();
+
 	tag.on('disconnect', function() {
 
 		global.logging('SensorTag disconnected!');
 		global.sound('sensortag_disconnected');
+
 		process.exit(0);
 	});
 
-	function connectAndSetUpMe() {			// attempt to connect to the tag
+	function connectAndSetUpMe() {			
     	
     	global.logging('SensorTag connectAndSetUp');
-		global.sound('enable_sensortag_services');    	
+    	tag.connectAndSetUp(enableService);		
 
-    	tag.connectAndSetUp(enableService);		// when you connect and device is setup, call enableAccelMe
+    	// Watch Dog
+    	setTimeout(connectionWatchDog, time_to_connect);
     	
     	device_info = {
     		id      : tag.id,
@@ -127,10 +173,23 @@ function tagDiscovery(tag) {
     	console.log(device_info);
     }
 
-    function enableService() {		// attempt to enable the accelerometer
+    function connectionWatchDog() {
+    	if( device_connect == false ) {
+    		global.logging('Watch Dog assume BLE connection Error, restart process');
+    		process.exit(0);
+    	}
+    }
+
+    function enableService(error) {		
 		
+		if ( error != undefined ) {
+			console.error('ERROR connectAndSetUpMe!');
+		}
+
 		global.logging('SensorTag enableService');
+		global.sound('enable_sensortag_services');
 		_tag = tag;
+		device_connect = true;
 
     	tag.enableHumidity(function(){
     		tag.notifyHumidity();
@@ -138,6 +197,10 @@ function tagDiscovery(tag) {
 
     	tag.enableIrTemperature(function() {
     		tag.notifyIrTemperature();
+    	});
+
+    	tag.enableBarometricPressure(function() {
+    		tag.notifyBarometricPressure();
     	});
 
     	tag.notifySimpleKey(listenForButton);
@@ -148,19 +211,20 @@ function tagDiscovery(tag) {
 		tag.on('simpleKeyChange', function(left, right) {
 			if (left) {
 				global.logging('left: ' + left);
+				global.run_cmd(DOC_ROOT + '/scripts/lock.sh', [], function(){});
 			}
 			if (right) {
 				global.logging('right: ' + right);
+				global.run_cmd(DOC_ROOT + '/scripts/unlock.sh', [], function(){});
 			}
 			// if both buttons are pressed, disconnect:
 			if (left && right) {
 				tag.disconnect();
+				global.logging('Both BTN Pressed');
 			}
 	   });
 	}
 
-	// Now that you've defined all the functions, start the process:
-	connectAndSetUpMe();
 }
 
 module.exports = router;
