@@ -24,8 +24,13 @@ cd bluez-5.28
 ./configure --disable-systemd
 make
 sudo make install
+
 sudo apt-get install nodejs npm
 sudo npm -g install npm node-gyp
+
+# Turn on bluetooth interface
+hciconfig
+hciconfig hci0 up
 ```
 
 Ref: [https://github.com/codeplanner/TI-CC2650-1](https://github.com/codeplanner/TI-CC2650-1)
@@ -36,11 +41,13 @@ Testing
 ### QR Code
 ```
 zbarcam /dev/video0
+# Please only excute it in GUI environment
 ```
 
 ### BLE Test
 
 ```
+sudo hcitool lescan
 gatttool -b 78:A5:04:19:59:B9 -I
 # Init Humidity Service by writing to 0x3f
 
@@ -68,4 +75,14 @@ Install
 ```
 npm install
 sudo npm install -g pm2
+pm2 start app	.js
+```
+
+Auto Start on boot
+---
+```
+sudo pm2 starstup systemd
+pm2 start app.js
+pm2 start QRReader/read.py
+pm2 save
 ```
