@@ -25,7 +25,6 @@ global.sound   = function (str) {
 global.run_cmd = function (cmd, args, callback) {
     
     global.logging('cmd = ' + cmd);
-    console.log(args);
 
     var spawn = require('child_process').spawn,
         child = spawn(cmd, args),
@@ -52,12 +51,12 @@ var allowCrossDomain = function(req, res, next) {
 // ------------------
 // Load Module 
 // ------------------
-var lock  = require('./routes/lock'),
-    photo = require('./routes/photo'),
-    sensortag = require('./routes/sensortag');
+//var lock  = require('./routes/lock');
+//var photo = require('./routes/photo');
+var sensortag = require('./routes/sensortag');
 
-app.use('/lock', lock);
-app.use('/photo', photo);
+//app.use('/lock', lock);
+//app.use('/photo', photo);
 app.use('/sensortag', sensortag);
 app.use(allowCrossDomain);
 
