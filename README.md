@@ -1,6 +1,10 @@
 # HomeGateway
 
+### A project under the [Social Intelligence Smartlock (SIS)](http://sis.patricks.tw)
+
 Raspberry Pi Home Gateway, Currently supports QR Code reader, Electro Lock and TI Sensortag
+
+For the Web Interface, Please checkout [GatewayManager](https://github.com/jeremy5189/GatewayManager)
 
 Requirement
 ---
@@ -12,7 +16,7 @@ sudo apt-get install zbar-tools python-zbar
 sudo pip install unirest
 ```
 
-### BLE
+### Bluetooth Driver
 
 ```
 sudo apt-get install libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libbluetooth-dev
@@ -44,7 +48,7 @@ zbarcam /dev/video0
 # Please only excute it in GUI environment
 ```
 
-### BLE Test
+### Bluetooth Driver Test
 
 ```
 sudo hcitool lescan
@@ -75,7 +79,7 @@ Install
 ```
 npm install
 sudo npm install -g pm2
-pm2 start app	.js
+pm2 start app.js
 ```
 
 Auto Start on boot
