@@ -28,8 +28,9 @@ console.warn = function(d) {
 };
 
 // listen for tags
+//SensorTag.discoverById('b0b448cffa81', tagDiscovery);
+//SensorTag.discoverById('78a5041959b9', tagDiscovery);
 SensorTag.discover(tagDiscovery);
-
 
 // ------------------
 // Get Record Photo

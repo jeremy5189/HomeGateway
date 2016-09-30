@@ -51,12 +51,12 @@ var allowCrossDomain = function(req, res, next) {
 // ------------------
 // Load Module 
 // ------------------
-//var lock  = require('./routes/lock');
-//var photo = require('./routes/photo');
+var lock  = require('./routes/lock');
+var photo = require('./routes/photo');
 var sensortag = require('./routes/sensortag');
 
-//app.use('/lock', lock);
-//app.use('/photo', photo);
+app.use('/lock', lock);
+app.use('/photo', photo);
 app.use('/sensortag', sensortag);
 app.use(allowCrossDomain);
 
