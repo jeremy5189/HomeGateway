@@ -24,7 +24,7 @@ global.sound   = function (str) {
 }
 global.run_cmd = function (cmd, args, callback) {
     
-    global.logging('cmd = ' + cmd);
+    //global.logging('cmd = ' + cmd);
 
     var spawn = require('child_process').spawn,
         child = spawn(cmd, args),

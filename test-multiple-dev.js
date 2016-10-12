@@ -13,6 +13,7 @@ SensorTag.SCAN_DUPLICATES = true;
 
 // For each discovered Tag
 function onDiscover(sensorTag) {
+
   console.log('discovered: ' + sensorTag.uuid + ', type = ' + sensorTag.type);
   stopTimed();
 
@@ -35,8 +36,8 @@ function onDiscover(sensorTag) {
     	sensorTag.notifyIrTemperature();
     });
     sensorTag.on('irTemperatureChange', function (objectTemperature, ambientTemperature) {
-	console.log('objectTemperature = ' + objectTemperature);
-	console.log('ambientTemperature = ' + ambientTemperature);
+	   console.log(sensorTag.type + ' objectTemperature = ' + objectTemperature);
+	   console.log(sensorTag.type + ' ambientTemperature = ' + ambientTemperature);
     });
     scanTimed();
   });
@@ -52,7 +53,7 @@ function scanTimed() {
   }, timeoutVar);
 }
 
-//Stop timer and discovering
+// Stop timer and discovering
 function stopTimed() {
   SensorTag.stopDiscoverAll(onDiscover);
   timeoutCleared = true;
@@ -61,6 +62,4 @@ function stopTimed() {
 }
 
 // Start discovering
-
-
 scanTimed();

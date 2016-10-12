@@ -1,20 +1,32 @@
-var express   = require('express'),
+'use strict';
+
+var async = require('async'),
+	express   = require('express'),
 	router    = express.Router(),
 	SensorTag = require('sensortag'),
 	device_info  = {},
-	_tag		 = null,
+	_tag		 = {},
 	_log_every   = false,
-	device_connect  = false,
 	time_to_connect = 7000;
 
-global.logging('Loading sensortag module');
+// Duplicates allowed -> Reconnect possible
+SensorTag.SCAN_DUPLICATES = true;
 
+// Timeout Variables
+// Discovering is limited to timeoutVar
+var timeoutVar = 60000;
+var timeoutHandle;
+var timeoutCleared = true;
+
+// Handle Exception
+/*
 process.on('uncaughtException', function(err) {
 	console.error('uncaughtException');
 	console.error(err);
 	process.exit(0);
-});
+});*/
 
+// Intercept Noble Device Error
 console.warn = function(d) {
 
 	// Starts with
@@ -27,13 +39,13 @@ console.warn = function(d) {
    	}
 };
 
-// listen for tags
-//SensorTag.discoverById('b0b448cffa81', tagDiscovery);
-//SensorTag.discoverById('78a5041959b9', tagDiscovery);
-SensorTag.discover(tagDiscovery);
+router.get('/device', function(req, res) {
+	res.send(device_info);
+});
 
+/*
 // ------------------
-// Get Record Photo
+// Get Device Info
 // ------------------
 router.ws('/info', function(ws, req) {
 
@@ -53,28 +65,12 @@ router.ws('/info', function(ws, req) {
 // WebSocket Test
 // ------------------
 router.ws('/echo', function(ws, req) {
+
 	ws.on('message', function(msg) {
 		global.logging('WebSocket Echo');
     	ws.send(msg);
   	});
-});
 
-// ------------------------------------
-// WebSocket Give 10 Test
-// ------------------------------------
-router.ws('/give', function(ws, req) {
-	
-	var i = 0;
-	
-	function give() {
-		i++;
-		ws.send('give');
-		if( i < 10 ) {
-			setTimeout(give, 1000);
-		}
-	}
-
-	setTimeout(give, 1000);
 });
 
 // ------------------------------------
@@ -153,20 +149,28 @@ router.ws('/irTemperature', function(ws, req) {
 	});
 
 });
-
+*/
 
 function tagDiscovery(tag) {
 
+	global.logging('discovered: ' + tag.uuid + ', type = ' + tag.type);
+	stopTimed();
+
 	global.sound('discover_sensortag');
-	// Now that you've defined all the functions, start the process:
+
 	connectAndSetUpMe();
 
-	tag.on('disconnect', function() {
+	tag.once('disconnect', function() {
 
 		global.logging('SensorTag disconnected!');
 		global.sound('sensortag_disconnected');
 
-		process.exit(0);
+		device_info[tag.uuid].connected = false;
+
+		// Resume scanning or wait
+	    if (timeoutCleared) {
+	      scanTimed();
+	    }
 	});
 
 	function connectAndSetUpMe() {			
@@ -174,25 +178,16 @@ function tagDiscovery(tag) {
     	global.logging('SensorTag connectAndSetUp');
     	tag.connectAndSetUp(enableService);		
 
-    	// Watch Dog
-    	setTimeout(connectionWatchDog, time_to_connect);
-    	
-    	device_info = {
-    		id      : tag.id,
-    		uuid    : tag.uuid,
-    		type	: tag.type,
-    		address : tag.address
+    	device_info[tag.uuid] = {
+    		id        : tag.id,
+    		uuid      : tag.uuid,
+    		type	  : tag.type,
+    		address   : tag.address,
+    		connected : true
     	};
 
     	global.logging('SensorTag Device Info');
-    	console.log(device_info);
-    }
-
-    function connectionWatchDog() {
-    	if( device_connect == false ) {
-    		global.logging('Watch Dog assume BLE connection Error, restart process');
-    		process.exit(0);
-    	}
+    	console.log(device_info[tag.uuid]);
     }
 
     function enableService(error) {		
@@ -203,9 +198,10 @@ function tagDiscovery(tag) {
 
 		global.logging('SensorTag enableService');
 		global.sound('enable_sensortag_services');
-		_tag = tag;
-		device_connect = true;
+		
+		_tag[tag.uuid] = tag;
 
+		// Enable Service
     	tag.enableHumidity(function(){
     		tag.notifyHumidity();
     	});
@@ -219,6 +215,9 @@ function tagDiscovery(tag) {
     	});
 
     	tag.notifySimpleKey(listenForButton);
+
+    	// Resume
+    	scanTimed();
     }
 
 	// when you get a button change, print it out:
@@ -241,5 +240,24 @@ function tagDiscovery(tag) {
 	}
 
 }
+
+function scanTimed() {
+	global.logging('scanTimed: Start discovering');
+	timeoutCleared = false;
+	SensorTag.discover(tagDiscovery);
+	timeoutHandle = setTimeout(function() {
+		stopTimed();
+	}, timeoutVar);
+}
+
+function stopTimed() {
+	SensorTag.stopDiscoverAll(function(){});
+	timeoutCleared = true;
+	console.log('stopTimed: Stop discovering');
+	clearTimeout(timeoutHandle);
+}
+
+// Start discovering
+scanTimed();
 
 module.exports = router;

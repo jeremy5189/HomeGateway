@@ -10,7 +10,7 @@ global.run_cmd( DOC_ROOT + '/scripts/init.sh', [], function(){});
 global.run_cmd( DOC_ROOT + '/scripts/lock.sh', [], function(){});
 
 // Play Init Sound
-global.sound('init_lock');
+//global.sound('init_lock');
 
 // ------------------
 // Lock 
