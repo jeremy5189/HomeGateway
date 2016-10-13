@@ -1,15 +1,14 @@
 'use strict';
 
-var async = require('async'),
-	express   = require('express'),
+var express   = require('express'),
 	router    = express.Router(),
 	SensorTag = require('sensortag'),
-	util	  = require('util'),
-	device_info  = {},
-	_tag		 = {},
+	device_info  = {}, // Global device recorder
+	_tag		 = {}, // Global tag accessor
 	_log_every   = false,
-	time_to_connect = 7000;
+	time_to_connect = 7000; // Time to stop discover
 
+// Handle Event 
 var EventEmitter = require('events').EventEmitter,
 	events		 = new EventEmitter();
 
@@ -23,12 +22,11 @@ var timeoutHandle;
 var timeoutCleared = true;
 
 // Handle Exception
-/*
 process.on('uncaughtException', function(err) {
-	console.error('uncaughtException');
+	console.error('uncaughtException restart process');
 	console.error(err);
 	process.exit(0);
-});*/
+});
 
 // Intercept Noble Device Error
 console.warn = function(d) {
