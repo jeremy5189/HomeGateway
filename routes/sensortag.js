@@ -43,7 +43,9 @@ console.warn = function(d) {
    	}
 };
 
-// Query Connected Device
+// ------------------------------------
+// Listen to Connected Device
+// ------------------------------------
 router.ws('/connected', function(ws, req) {
 	global.logging('ws:// connected');
 	ws.send(JSON.stringify(device_info));
@@ -57,113 +59,117 @@ router.ws('/connected', function(ws, req) {
 	});
 });
 
-/*
-// ------------------
-// Get Device Info
-// ------------------
-router.ws('/info', function(ws, req) {
-
-	global.logging('ws:// info!');
-	
-	device_info.status = _tag._peripheral.state;
-	ws.send(JSON.stringify(device_info));
-
-	_tag.on('disconnect', function() {
-		device_info.status = 'disconnected';
-		ws.send(JSON.stringify(device_info));
-	});
-
-});
-
-// ------------------
-// WebSocket Test
-// ------------------
-router.ws('/echo', function(ws, req) {
-
-	ws.on('message', function(msg) {
-		global.logging('WebSocket Echo');
-    	ws.send(msg);
-  	});
-
-});
 
 // ------------------------------------
 // WebSocket Humidity 
 // ------------------------------------
-router.ws('/humidity', function(ws, req) {
+router.ws('/humidity/:uuid', function(ws, req) {
 
-	global.logging('WebSocket humidity Open!');
+	var uuid = req.params.uuid;
 
-	_tag.on('humidityChange', function (temperature, humidity) {
+	if( uuid == undefined || _tag[uuid] == undefined ) {
+		global.logging('Device uuid not defined or not found');
+		ws.close(); // Cloase Connection
+	}
+
+	global.logging('ws:// humidity/' + uuid);
+
+	_tag[uuid].on('humidityChange', function (temperature, humidity) {
 
 		if(_log_every) {
 		   	global.logging('temperature = ' + temperature);
 		   	global.logging('humidity = ' + humidity);
 		}
 
-	   	ws.send(JSON.stringify({
+		// Make json object with UUID
+		var obj = {};
+
+		obj[uuid] = {
 	   		temperature: temperature, 
 	   		humidity: humidity
-	   	}), function(error) {
+	   	};
+
+	   	ws.send(JSON.stringify(obj), function(error) {
 	   		if(error && _log_every){
 	   			console.error(error);
 	   		}
 	   	});
 	});
-	
 });
 
 // ------------------------------------
 // WebSocket Pressure 
 // ------------------------------------
-router.ws('/barometricPressure', function(ws, req) {
+router.ws('/barometricPressure/:uuid', function(ws, req) {
 
-	global.logging('WebSocket barometricPressureChange Open!');
+	var uuid = req.params.uuid;
 
-	_tag.on('barometricPressureChange', function(pressure) {
+	if( uuid == undefined || _tag[uuid] == undefined ) {
+		global.logging('Device uuid not defined or not found');
+		ws.close(); // Cloase Connection
+	}
+
+	global.logging('ws:// barometricPressure/' + uuid);
+
+	_tag[uuid].on('barometricPressureChange', function(pressure) {
 
 		if(_log_every) {
 			global.logging('pressure = ' + pressure);
 		}
 
-		ws.send(JSON.stringify({
+	   	// Make json object with UUID
+		var obj = {};
+
+		obj[uuid] = {
 			pressure: pressure
-		}), function(error) {
+		};
+
+	   	ws.send(JSON.stringify(obj), function(error) {
 	   		if(error && _log_every){
 	   			console.error(error);
 	   		}
 	   	});
-
 	});
-
 });
 
 // ------------------------------------
 // WebSocket irTemperature 
 // ------------------------------------
-router.ws('/irTemperature', function(ws, req) {
-	
-	global.logging('WebSocket irTemperature Open!');
+router.ws('/irTemperature/:uuid', function(ws, req) {
 
-	_tag.on('irTemperatureChange', function (objectTemperature, ambientTemperature) {
+	var uuid = req.params.uuid;
+
+	if( uuid == undefined || _tag[uuid] == undefined ) {
+		global.logging('Device uuid not defined or not found');
+		ws.close(); // Cloase Connection
+	}
+
+	global.logging('ws:// irTemperature/' + uuid);
+
+	_tag[uuid].on('irTemperatureChange', function (objectTemperature, ambientTemperature) {
 
 		if(_log_every) {
 	    	global.logging('objectTemperature = ' + objectTemperature);
 	    	global.logging('ambientTemperature = ' + ambientTemperature);
 	    }
 
-	    ws.send(JSON.stringify({
+	   	// Make json object with UUID
+		var obj = {};
+
+		obj[uuid] = {
 	    	objectTemperature: objectTemperature, 
 	    	ambientTemperature: ambientTemperature
-	    }), function(error) {
-	   		if(error && _log_every) {
+	    };
+
+	   	ws.send(JSON.stringify(obj), function(error) {
+	   		if(error && _log_every){
 	   			console.error(error);
 	   		}
 	   	});
 	});
-
 });
-*/
+
+
 
 function tagDiscovery(tag) {
 
@@ -182,7 +188,7 @@ function tagDiscovery(tag) {
 		global.sound('sensortag_disconnected');
 
 		// Remove Property
-		delete device_info[tag.id];
+		delete device_info[tag.uuid];
 
 		// Emit Disconnected Event
 		events.emit('device_disconnect');
@@ -198,7 +204,7 @@ function tagDiscovery(tag) {
     	global.logging(tag.address + '(' + tag.type +') connectAndSetUp');
     	tag.connectAndSetUp(enableService);		
 
-    	device_info[tag.id] = {
+    	device_info[tag.uuid] = {
     		id        : tag.id,
     		uuid      : tag.uuid,
     		type	  : tag.type,
@@ -206,7 +212,7 @@ function tagDiscovery(tag) {
     	};
 
     	global.logging('Device Info');
-    	console.log(device_info[tag.id]);
+    	console.log(device_info[tag.uuid]);
     }
 
     function enableService(error) {		
@@ -221,7 +227,7 @@ function tagDiscovery(tag) {
 		// Emit connected Devent
 		events.emit('device_connect');
 
-		_tag[tag.id] = tag;
+		_tag[tag.uuid] = tag;
 
 		// Enable Service
     	tag.enableHumidity(function(){
