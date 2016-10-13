@@ -45,15 +45,27 @@ console.warn = function(d) {
 // Listen to Connected Device
 // ------------------------------------
 router.ws('/connected', function(ws, req) {
+
 	global.logging('ws:// connected');
-	ws.send(JSON.stringify(device_info));
+
+	// Send init
+	ws.send(JSON.stringify(device_info), function(error) {
+	   	if(error)
+	   		console.error(error);
+	});
 
 	events.on('device_disconnect', function() {
-		ws.send(JSON.stringify(device_info));
+		ws.send(JSON.stringify(device_info), function(error) {
+		   	if(error)
+		   		console.error(error);
+		});
 	});
 
 	events.on('device_connect', function() {
-		ws.send(JSON.stringify(device_info));
+		ws.send(JSON.stringify(device_info), function(error) {
+		   	if(error)
+		   		console.error(error);
+		});
 	});
 });
 
