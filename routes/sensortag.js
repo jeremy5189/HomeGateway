@@ -4,10 +4,14 @@ var async = require('async'),
 	express   = require('express'),
 	router    = express.Router(),
 	SensorTag = require('sensortag'),
+	util	  = require('util'),
 	device_info  = {},
 	_tag		 = {},
 	_log_every   = false,
 	time_to_connect = 7000;
+
+var EventEmitter = require('events').EventEmitter,
+	events		 = new EventEmitter();
 
 // Duplicates allowed -> Reconnect possible
 SensorTag.SCAN_DUPLICATES = true;
@@ -39,8 +43,18 @@ console.warn = function(d) {
    	}
 };
 
-router.get('/device', function(req, res) {
-	res.send(device_info);
+// Query Connected Device
+router.ws('/connected', function(ws, req) {
+	global.logging('ws:// connected');
+	ws.send(JSON.stringify(device_info));
+
+	events.on('device_disconnect', function() {
+		ws.send(JSON.stringify(device_info));
+	});
+
+	events.on('device_connect', function() {
+		ws.send(JSON.stringify(device_info));
+	});
 });
 
 /*
@@ -49,7 +63,7 @@ router.get('/device', function(req, res) {
 // ------------------
 router.ws('/info', function(ws, req) {
 
-	global.logging('WebSocket Info Opened!');
+	global.logging('ws:// info!');
 	
 	device_info.status = _tag._peripheral.state;
 	ws.send(JSON.stringify(device_info));
@@ -153,19 +167,25 @@ router.ws('/irTemperature', function(ws, req) {
 
 function tagDiscovery(tag) {
 
-	global.logging('discovered: ' + tag.uuid + ', type = ' + tag.type);
+	// Stop Bluetooth discovering
 	stopTimed();
 
+	global.logging('discovered: ' + tag.address + ', type = ' + tag.type);
 	global.sound('discover_sensortag');
 
+	// connect me this tag
 	connectAndSetUpMe();
 
-	tag.once('disconnect', function() {
+	tag.on('disconnect', function() {
 
-		global.logging('SensorTag disconnected!');
+		global.logging(tag.address + '(' + tag.type +') disconnected!');
 		global.sound('sensortag_disconnected');
 
-		device_info[tag.uuid].connected = false;
+		// Remove Property
+		delete device_info[tag.id];
+
+		// Emit Disconnected Event
+		events.emit('device_disconnect');
 
 		// Resume scanning or wait
 	    if (timeoutCleared) {
@@ -175,19 +195,18 @@ function tagDiscovery(tag) {
 
 	function connectAndSetUpMe() {			
     	
-    	global.logging('SensorTag connectAndSetUp');
+    	global.logging(tag.address + '(' + tag.type +') connectAndSetUp');
     	tag.connectAndSetUp(enableService);		
 
-    	device_info[tag.uuid] = {
+    	device_info[tag.id] = {
     		id        : tag.id,
     		uuid      : tag.uuid,
     		type	  : tag.type,
     		address   : tag.address,
-    		connected : true
     	};
 
-    	global.logging('SensorTag Device Info');
-    	console.log(device_info[tag.uuid]);
+    	global.logging('Device Info');
+    	console.log(device_info[tag.id]);
     }
 
     function enableService(error) {		
@@ -196,10 +215,13 @@ function tagDiscovery(tag) {
 			console.error('ERROR connectAndSetUpMe!');
 		}
 
-		global.logging('SensorTag enableService');
+		global.logging(tag.address + '(' + tag.type +') enableService');
 		global.sound('enable_sensortag_services');
-		
-		_tag[tag.uuid] = tag;
+
+		// Emit connected Devent
+		events.emit('device_connect');
+
+		_tag[tag.id] = tag;
 
 		// Enable Service
     	tag.enableHumidity(function(){
@@ -216,25 +238,29 @@ function tagDiscovery(tag) {
 
     	tag.notifySimpleKey(listenForButton);
 
-    	// Resume
+    	// Resume Scan
     	scanTimed();
     }
 
 	// when you get a button change, print it out:
 	function listenForButton() {
+
 		tag.on('simpleKeyChange', function(left, right) {
+
 			if (left) {
-				global.logging('left: ' + left);
+				global.logging(tag.address + '(' + tag.type +')> left: ' + left);
 				global.run_cmd(DOC_ROOT + '/scripts/lock.sh', [], function(){});
 			}
+
 			if (right) {
-				global.logging('right: ' + right);
+				global.logging(tag.address + '(' + tag.type +')> right: ' + right);
 				global.run_cmd(DOC_ROOT + '/scripts/unlock.sh', [], function(){});
 			}
+
 			// if both buttons are pressed, disconnect:
 			if (left && right) {
+				global.logging(tag.address + '(' + tag.type +')> Both BTN Pressed');
 				tag.disconnect();
-				global.logging('Both BTN Pressed');
 			}
 	   });
 	}
