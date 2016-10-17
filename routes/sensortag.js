@@ -5,8 +5,7 @@ var express   = require('express'),
 	SensorTag = require('sensortag'),
 	device_info  = {}, // Global device recorder
 	_tag		 = {}, // Global tag accessor
-	_log_every   = false,
-	time_to_connect = 7000; // Time to stop discover
+	_log_every   = false;
 
 // Handle Event 
 var EventEmitter = require('events').EventEmitter,
@@ -15,11 +14,9 @@ var EventEmitter = require('events').EventEmitter,
 // Duplicates allowed -> Reconnect possible
 SensorTag.SCAN_DUPLICATES = true;
 
-// Timeout Variables
-// Discovering is limited to timeoutVar
-var timeoutVar = 60000;
-var timeoutHandle;
-var timeoutCleared = true;
+// Timeout for watchdog 
+var timeoutVar = 7000;
+var scanning = false;
 
 // Handle Exception
 process.on('uncaughtException', function(err) {
@@ -184,13 +181,15 @@ router.ws('/irTemperature/:uuid', function(ws, req) {
 function tagDiscovery(tag) {
 
 	// Stop Bluetooth discovering
-	stopTimed();
+	stop_discover();
 
 	global.logging('discovered: ' + tag.address + ', type = ' + tag.type);
 	global.sound('discover_sensortag');
 
 	// connect me this tag
 	connectAndSetUpMe();
+
+	var watchDogFlag = true;
 
 	tag.on('disconnect', function() {
 
@@ -203,11 +202,19 @@ function tagDiscovery(tag) {
 		// Emit Disconnected Event
 		events.emit('device_disconnect');
 
-		// Resume scanning or wait
-	    if (timeoutCleared) {
-	      scanTimed();
-	    }
+		// Resume scanning
+	    start_discover();
 	});
+
+
+	function watchDog() {
+
+		if(watchDogFlag) {
+
+			global.logging('watchDog invoked, force disconnected');
+			tag.disconnect();
+		}
+	}
 
 	function connectAndSetUpMe() {			
     	
@@ -223,6 +230,9 @@ function tagDiscovery(tag) {
 
     	global.logging('Device Info');
     	console.log(device_info[tag.uuid]);
+
+    	// Set up watch dog
+    	setTimeout(watchDog, timeoutVar);
     }
 
     function enableService(error) {		
@@ -254,8 +264,11 @@ function tagDiscovery(tag) {
 
     	tag.notifySimpleKey(listenForButton);
 
+    	// Mark connected
+    	watchDogFlag = false;
+
     	// Resume Scan
-    	scanTimed();
+    	start_discover();
     }
 
 	// when you get a button change, print it out:
@@ -283,23 +296,24 @@ function tagDiscovery(tag) {
 
 }
 
-function scanTimed() {
+function start_discover() {
+
+	if(scanning)
+		return;
+
+	scanning = true;
 	global.logging('scanTimed: Start discovering');
-	timeoutCleared = false;
 	SensorTag.discover(tagDiscovery);
-	timeoutHandle = setTimeout(function() {
-		stopTimed();
-	}, timeoutVar);
 }
 
-function stopTimed() {
+function stop_discover() {
+
+	scanning = false;
 	SensorTag.stopDiscoverAll(function(){});
-	timeoutCleared = true;
-	console.log('stopTimed: Stop discovering');
-	clearTimeout(timeoutHandle);
+	global.logging('stopTimed: Stop discovering');
 }
 
 // Start discovering
-scanTimed();
+start_discover();
 
 module.exports = router;
