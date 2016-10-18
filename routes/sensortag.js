@@ -4,7 +4,8 @@ var express   = require('express'),
 	router    = express.Router(),
 	SensorTag = require('sensortag'),
 	device_info  = {}, // Global device recorder
-	_log_every   = false;
+	_log_every   = false,
+	gyro_period  = 1000;
 
 global._tag		 = {}, // Global tag accessor	
 
@@ -267,6 +268,9 @@ function tagDiscovery(tag) {
 
     	// For BB8
     	tag.enableGyroscope(function() {
+    		tag.setGyroscopePeriod(gyro_period, function(error){
+    			console.error(error);
+    		});
     		tag.notifyGyroscope();
     	});
 
@@ -287,7 +291,11 @@ function tagDiscovery(tag) {
     }
 
     tag.on('gyroscopeChange', function(x, y, z) {
-    	console.log()
+    	console.log('%s %s %s', x, y, z);
+    	var angle_x = (x * 1.0) / (65536/ 500);
+    	var angle_y = (y * 1.0) / (65536/ 500);
+    	var angle_z = (z * 1.0) / (65536/ 500);
+    	console.log('angle %s %s %s', angle_x, angle_y, angle_z);
     });
 
 	// when you get a button change, print it out:
