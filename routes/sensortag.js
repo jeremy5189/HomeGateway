@@ -4,12 +4,9 @@ var express   = require('express'),
 	router    = express.Router(),
 	SensorTag = require('sensortag'),
 	device_info  = {}, // Global device recorder
-	_tag		 = {}, // Global tag accessor
 	_log_every   = false;
 
-// Handle Event 
-var EventEmitter = require('events').EventEmitter,
-	events		 = new EventEmitter();
+global._tag		 = {}, // Global tag accessor	
 
 // Duplicates allowed -> Reconnect possible
 SensorTag.SCAN_DUPLICATES = true;
@@ -51,14 +48,20 @@ router.ws('/connected', function(ws, req) {
 	   		console.error(error);
 	});
 
-	events.on('device_disconnect', function() {
+	global.events.on('device_disconnect', function() {
+
+		global.logging('device_disconnect event trigger');
+		
 		ws.send(JSON.stringify(device_info), function(error) {
 		   	if(error)
 		   		console.error(error);
 		});
 	});
 
-	events.on('device_connect', function() {
+	global.events.on('device_connect', function() {
+
+		global.logging('device_connect event trigger');
+
 		ws.send(JSON.stringify(device_info), function(error) {
 		   	if(error)
 		   		console.error(error);
@@ -74,14 +77,14 @@ router.ws('/humidity/:uuid', function(ws, req) {
 
 	var uuid = req.params.uuid;
 
-	if( uuid == undefined || _tag[uuid] == undefined ) {
+	if( uuid == undefined || global._tag[uuid] == undefined ) {
 		global.logging('Device uuid not defined or not found');
 		ws.close(); // Cloase Connection
 	}
 
 	global.logging('ws:// humidity/' + uuid);
 
-	_tag[uuid].on('humidityChange', function (temperature, humidity) {
+	global._tag[uuid].on('humidityChange', function (temperature, humidity) {
 
 		if(_log_every) {
 		   	global.logging('temperature = ' + temperature);
@@ -111,14 +114,14 @@ router.ws('/barometricPressure/:uuid', function(ws, req) {
 
 	var uuid = req.params.uuid;
 
-	if( uuid == undefined || _tag[uuid] == undefined ) {
+	if( uuid == undefined || global._tag[uuid] == undefined ) {
 		global.logging('Device uuid not defined or not found');
 		ws.close(); // Cloase Connection
 	}
 
 	global.logging('ws:// barometricPressure/' + uuid);
 
-	_tag[uuid].on('barometricPressureChange', function(pressure) {
+	global._tag[uuid].on('barometricPressureChange', function(pressure) {
 
 		if(_log_every) {
 			global.logging('pressure = ' + pressure);
@@ -146,14 +149,14 @@ router.ws('/irTemperature/:uuid', function(ws, req) {
 
 	var uuid = req.params.uuid;
 
-	if( uuid == undefined || _tag[uuid] == undefined ) {
+	if( uuid == undefined || global._tag[uuid] == undefined ) {
 		global.logging('Device uuid not defined or not found');
 		ws.close(); // Cloase Connection
 	}
 
 	global.logging('ws:// irTemperature/' + uuid);
 
-	_tag[uuid].on('irTemperatureChange', function (objectTemperature, ambientTemperature) {
+	global._tag[uuid].on('irTemperatureChange', function (objectTemperature, ambientTemperature) {
 
 		if(_log_every) {
 	    	global.logging('objectTemperature = ' + objectTemperature);
@@ -200,7 +203,7 @@ function tagDiscovery(tag) {
 		delete device_info[tag.uuid];
 
 		// Emit Disconnected Event
-		events.emit('device_disconnect');
+		global.events.emit('device_disconnect');
 
 		// Resume scanning
 	    start_discover();
@@ -245,9 +248,9 @@ function tagDiscovery(tag) {
 		global.sound('enable_sensortag_services');
 
 		// Emit connected Devent
-		events.emit('device_connect');
+		global.events.emit('device_connect');
 
-		_tag[tag.uuid] = tag;
+		global._tag[tag.uuid] = tag;
 
 		// Enable Service
     	tag.enableHumidity(function(){
@@ -262,14 +265,30 @@ function tagDiscovery(tag) {
     		tag.notifyBarometricPressure();
     	});
 
+    	// For BB8
+    	tag.enableGyroscope(function() {
+    		tag.notifyGyroscope();
+    	});
+
     	tag.notifySimpleKey(listenForButton);
 
     	// Mark connected
     	watchDogFlag = false;
 
+    	// Add count
+    	connected_tag_count++;
+
+    	if( connected_tag_count == expected_tag_count ) {
+    		global.events.emit('tag_all_connected');
+    	}
+
     	// Resume Scan
     	start_discover();
     }
+
+    tag.on('gyroscopeChange', function(x, y, z) {
+    	console.log()
+    });
 
 	// when you get a button change, print it out:
 	function listenForButton() {

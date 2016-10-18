@@ -68,6 +68,10 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+big-integer@^1.6.7:
+  version "1.6.16"
+  resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.16.tgz#0ca30b58013db46b10084a09242ca1d8954724cc"
+
 bl@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/bl/-/bl-1.1.2.tgz#fdca871a99713aa00d19e3bbba41c44787a65398"
@@ -79,6 +83,10 @@ block-stream@*:
   resolved "https://registry.yarnpkg.com/block-stream/-/block-stream-0.0.9.tgz#13ebfe778a03205cfe03751481ebb4b3300c126a"
   dependencies:
     inherits "~2.0.0"
+
+bluebird@^3.3.4:
+  version "3.4.6"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.4.6.tgz#01da8d821d87813d158967e743d5fe6c62cf8c0f"
 
 bluetooth-hci-socket@^0.5.1:
   version "0.5.1"
@@ -95,6 +103,12 @@ boom@2.x.x:
   dependencies:
     hoek "2.x.x"
 
+bplist-parser:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/bplist-parser/-/bplist-parser-0.1.1.tgz#d60d5dcc20cba6dc7e1f299b35d3e1f95dafbae6"
+  dependencies:
+    big-integer "^1.6.7"
+
 bplist-parser@0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/bplist-parser/-/bplist-parser-0.0.6.tgz#38da3471817df9d44ab3892e27707bbbd75a11b9"
@@ -105,6 +119,10 @@ brace-expansion@^1.0.0:
   dependencies:
     balanced-match "^0.4.1"
     concat-map "0.0.1"
+
+browser-serialport@^2.0.2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/browser-serialport/-/browser-serialport-2.0.3.tgz#3890aad440dc364540ad9f86f1e251d1b2011d73"
 
 buffer-shims@^1.0.0:
   version "1.0.0"
@@ -824,6 +842,13 @@ sntp@1.x.x:
   dependencies:
     hoek "2.x.x"
 
+sphero:
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/sphero/-/sphero-0.9.2.tgz#b3331a9836937326c78fb728a709fbecf7eb1084"
+  dependencies:
+    bluebird "^3.3.4"
+    browser-serialport "^2.0.2"
+
 sshpk@^1.7.0:
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.10.1.tgz#30e1a5d329244974a1af61511339d595af6638b0"
@@ -967,7 +992,7 @@ ws@^1.0.0:
     options ">=0.0.5"
     ultron "1.0.x"
 
-xpc-connection@~0.1.4:
+xpc-connection, xpc-connection@~0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/xpc-connection/-/xpc-connection-0.1.4.tgz#dcd7faa2aec6b7a6e18cc5ddad042f7a34c77156"
   dependencies:
