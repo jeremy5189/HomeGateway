@@ -1,6 +1,7 @@
 'use strict';
 
-var bb8_address = 'e146c3a8db364a6c9ff2ae739401ddd8';
+//var bb8_address = 'e146c3a8db364a6c9ff2ae739401ddd8';
+var bb8_address = 'ec:98:74:81:1c:5e';
 
 var express    = require('express'),
 	router     = express.Router(),
@@ -8,6 +9,10 @@ var express    = require('express'),
     bb8        = sphero(bb8_address),
     bb8_status = false;
 
+
+function bb8_sound(num) {
+	global.run_cmd('mpg123', [ global.DOC_ROOT + '/bb8-sounds/bb8-' + num + '.mp3']);
+}
 
 global.events.on('tag_all_connected', bb8_init);
 
@@ -20,7 +25,9 @@ function bb8_init() {
 function bb8_connected() {
 
 	global.logging('bb8 connected');
+	bb8_status = true;
 	global.events.emit('bb8_connected');
+	bb8_sound('26');
 }
 
 router.ws('/status', function(ws, req) {
@@ -31,8 +38,6 @@ router.ws('/status', function(ws, req) {
 	}), function(err){});
 
 	global.events.on('bb8_connected', function() {
-
-		bb8_status = true;
 
 		ws.send(JSON.stringify({
 			status : bb8_status,

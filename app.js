@@ -26,14 +26,14 @@ global.logging = function (str) {
 
 global.sound   = function (str) {
 
-//    global.run_cmd('aplay', [ global.DOC_ROOT + '/sound/' + str + '.wav']);
+    global.run_cmd('aplay', [ global.DOC_ROOT + '/sound/' + str + '.wav']);
 
 }
 
 global.run_cmd = function (cmd, args, callback) {
     
     // global.logging('cmd = ' + cmd);
-    /*
+    
     var spawn = require('child_process').spawn,
         child = spawn(cmd, args),
         resp = "";
@@ -45,7 +45,7 @@ global.run_cmd = function (cmd, args, callback) {
     child.stdout.on('end', function() { 
         if(callback)
             callback(resp) 
-    });*/
+    });
 }
 
 var allowCrossDomain = function(req, res, next) {
