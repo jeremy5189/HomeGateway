@@ -46,6 +46,55 @@ router.ws('/status', function(ws, req) {
 	});
 });
 
+function bb8_up() {
+    bb8.stop();
+    bb8.roll(150, 0);
+}
+
+function bb8_down() {
+    bb8.stop();
+    bb8.roll(150, 180);
+}
+
+function bb8_left() {
+    bb8.stop();
+    bb8.roll(150, 270);
+}
+
+function bb8_right() {
+    bb8.stop();
+    bb8.roll(150, 90);
+}
+
+function bb8_stop() {
+	bb8.stop();
+}
+
+function bb8_calibrate() {
+
+	bb8.startCalibration();
+    
+    bb8.roll(1, 90, 2, function() {
+        setTimeout(function() {
+        	bb8.setHeading(0, function() {
+            	bb8.roll(0,0,1);
+          	});
+        }, 300);
+    });
+}
+
+function bb8_calibrate_finish() {
+	bb8.finishCalibration();
+}
+
+function get_random_num() {
+	var n = Math.floor(Math.random() * 32) + 1;
+	if( n < 10 )
+		return '0' + n;
+
+	return n.toString();
+}
+
 router.ws('/control', function(ws, req) {
 
 	// Got message from client
@@ -55,6 +104,8 @@ router.ws('/control', function(ws, req) {
 
 		// Abort if not connected
 		if( !bb8_status ) return;
+
+		bb8_sound(get_random_num());
 
 		switch(msg) {
 			case 'up':
@@ -71,6 +122,12 @@ router.ws('/control', function(ws, req) {
 				break;
 			case 'stop':
 				bb8_stop();
+				break;
+			case 'calibrate':
+				bb8_calibrate();
+				break;
+			case 'calibrate_finish':
+				bb8_calibrate_finish();
 				break;
 			default:
 				break; 
