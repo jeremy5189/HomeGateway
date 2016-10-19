@@ -267,12 +267,13 @@ function tagDiscovery(tag) {
     	});
 
     	// For BB8
+    	/*
     	tag.enableGyroscope(function() {
     		tag.setGyroscopePeriod(gyro_period, function(error){
     			console.error(error);
     		});
     		tag.notifyGyroscope();
-    	});
+    	});*/
 
     	tag.notifySimpleKey(listenForButton);
 
@@ -290,13 +291,14 @@ function tagDiscovery(tag) {
     	start_discover();
     }
 
+    /*
     tag.on('gyroscopeChange', function(x, y, z) {
     	console.log('%s %s %s', x, y, z);
     	var angle_x = (x * 1.0) / (65536/ 500);
     	var angle_y = (y * 1.0) / (65536/ 500);
     	var angle_z = (z * 1.0) / (65536/ 500);
     	console.log('angle %s %s %s', angle_x, angle_y, angle_z);
-    });
+    });*/
 
 	// when you get a button change, print it out:
 	function listenForButton() {
