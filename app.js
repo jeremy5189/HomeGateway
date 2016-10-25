@@ -4,7 +4,7 @@
 var express  = require('express'),
     config   = require('./config'),
     app      = express(),
-    PORT     = 3000,
+    PORT     = config.port,
     local    = config.local;
 
 // Web Socket Support
@@ -13,7 +13,7 @@ var expressWs = require('express-ws')(app);
 // Handle Event
 var EventEmitter  = require('events').EventEmitter;
 global.events     = new EventEmitter();
-global.DOC_ROOT   = '/home/pi/HomeGateway';
+global.DOC_ROOT   = config.doc_root;
 global.connected_tag_count = 0;
 global.expected_tag_count  = 2;
 
@@ -23,7 +23,6 @@ global.logging = function (str) {
         now    = moment().format("YYYY-MM-DD HH:mm:ss");
 
     console.log('[%s] %s', now, str);
-
 }
 
 global.sound   = function (str) {
@@ -90,5 +89,4 @@ app.get('/', function (req, res) {
 app.listen(PORT, function () {
 
     logging('HomeGateway listening on port 3000');
-
 });

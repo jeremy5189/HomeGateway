@@ -1,4 +1,6 @@
 {
     "local" : true,
-    "db_url": "mysql://username:password@host/database"
+    "port"  : 3000,
+    "doc_root": "/home/pi/HomeGateway",
+    "db_url"  : "mysql://username:password@host/database"
 }
