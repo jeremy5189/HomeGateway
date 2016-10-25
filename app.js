@@ -73,6 +73,7 @@ if ( !local ) {
 }
 app.use('/sensortag', sensortag);
 app.use('/bb8'      , bb8);
+app.use('/ifttt'    , ifttt);
 app.use(allowCrossDomain);
 
 

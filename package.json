@@ -21,6 +21,7 @@
     "express": "^4.14.0",
     "express-ws": "^2.0.0",
     "moment": "^2.15.0",
+    "mysql": "^2.11.1",
     "sensortag": "^1.2.2",
     "sphero": "^0.9.2",
     "xpc-connection": "^0.1.4"

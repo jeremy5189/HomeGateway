@@ -2,5 +2,10 @@
     "local" : true,
     "port"  : 3000,
     "doc_root": "/home/pi/HomeGateway",
-    "db_url"  : "mysql://username:password@host/database"
+    "db": {
+        "host": "127.0.0.1",
+        "user": "",
+        "pass": "",
+        "database": ""   
+    }
 }
