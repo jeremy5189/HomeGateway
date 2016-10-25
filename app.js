@@ -64,6 +64,7 @@ var lock;
 var photo;
 var sensortag = require('./routes/sensortag');
 var bb8       = require('./routes/bb8');
+var ifttt     = require('./routes/ifttt');
 
 if ( !local ) {
     lock  = require('./routes/lock');

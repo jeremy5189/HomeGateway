@@ -1,11 +1,12 @@
 {
     "local" : true,
     "port"  : 3000,
+    "ifttt_sleep_sec" : 10000,
     "doc_root": "/home/pi/HomeGateway",
     "db": {
         "host": "127.0.0.1",
         "user": "",
         "pass": "",
-        "database": ""   
+        "database": ""
     }
 }

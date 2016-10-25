@@ -7,7 +7,8 @@ var express   = require('express'),
 	_log_every   = false,
 	gyro_period  = 1000;
 
-global._tag		 = {}, // Global tag accessor
+global._tag		  = {}; // Global tag accessor
+global.ifttt_data = {};
 
 // Duplicates allowed -> Reconnect possible
 SensorTag.SCAN_DUPLICATES = true;
@@ -252,15 +253,41 @@ function tagDiscovery(tag) {
 
 		// Enable Service
     	tag.enableHumidity(function(){
-    		tag.notifyHumidity();
+    		tag.notifyHumidity(function() {
+				tag.on('humidityChange', function(temperature, humidity) {
+
+					if ( global.ifttt_data[tag.uuid] == undefined )
+					 	global.ifttt_data[tag.uuid] = {};
+
+					global.ifttt_data[tag.uuid].temperature = temperature;
+					global.ifttt_data[tag.uuid].humidity    = humidity;
+				});
+			});
     	});
 
     	tag.enableIrTemperature(function() {
-    		tag.notifyIrTemperature();
+    		tag.notifyIrTemperature(function() {
+				tag.on('irTemperatureChange', function(objectTemperature, ambientTemperature) {
+
+					if ( global.ifttt_data[tag.uuid] == undefined )
+						global.ifttt_data[tag.uuid] = {};
+
+					global.ifttt_data[tag.uuid].objectTemperature  = objectTemperature;
+					global.ifttt_data[tag.uuid].ambientTemperature = ambientTemperature;
+				});
+			});
     	});
 
     	tag.enableBarometricPressure(function() {
-    		tag.notifyBarometricPressure();
+    		tag.notifyBarometricPressure(function() {
+				tag.on('barometricPressureChange', function(pressure) {
+
+					if ( global.ifttt_data[tag.uuid] == undefined )
+						global.ifttt_data[tag.uuid] = {};
+
+					global.ifttt_data[tag.uuid].pressure  = pressure;
+				});
+			});
     	});
 
     	tag.notifySimpleKey(listenForButton);
