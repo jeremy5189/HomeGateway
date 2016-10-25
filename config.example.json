@@ -1,0 +1,4 @@
+{
+    "local" : true,
+    "db_url": "mysql://username:password@host/database"
+}

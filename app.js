@@ -2,8 +2,10 @@
 // Init Express
 // ------------------
 var express  = require('express'),
+    config   = require('./config'),
     app      = express(),
-    PORT     = 3000;
+    PORT     = 3000,
+    local    = config.local;
 
 // Web Socket Support
 var expressWs = require('express-ws')(app);
@@ -26,8 +28,8 @@ global.logging = function (str) {
 
 global.sound   = function (str) {
 
-    global.run_cmd('aplay', [ global.DOC_ROOT + '/sound/' + str + '.wav']);
-
+    if(!local)
+        global.run_cmd('aplay', [ global.DOC_ROOT + '/sound/' + str + '.wav']);
 }
 
 global.run_cmd = function (cmd, args, callback) {
@@ -59,13 +61,17 @@ var allowCrossDomain = function(req, res, next) {
 // ------------------
 // Load Module
 // ------------------
-var lock      = require('./routes/lock');
-var photo     = require('./routes/photo');
+var lock;
+var photo;
 var sensortag = require('./routes/sensortag');
 var bb8       = require('./routes/bb8');
 
-app.use('/lock'  , lock);
-app.use('/photo' , photo);
+if ( !local ) {
+    lock  = require('./routes/lock');
+    photo = require('./routes/photo');
+    app.use('/lock'  , lock);
+    app.use('/photo'    , photo);
+}
 app.use('/sensortag', sensortag);
 app.use('/bb8'      , bb8);
 app.use(allowCrossDomain);
