@@ -7,12 +7,12 @@ var express   = require('express'),
 	_log_every   = false,
 	gyro_period  = 1000;
 
-global._tag		 = {}, // Global tag accessor	
+global._tag		 = {}, // Global tag accessor
 
 // Duplicates allowed -> Reconnect possible
 SensorTag.SCAN_DUPLICATES = true;
 
-// Timeout for watchdog 
+// Timeout for watchdog
 var timeoutVar = 7000;
 var scanning = false;
 
@@ -52,7 +52,7 @@ router.ws('/connected', function(ws, req) {
 	global.events.on('device_disconnect', function() {
 
 		global.logging('device_disconnect event trigger');
-		
+
 		ws.send(JSON.stringify(device_info), function(error) {
 		   	if(error)
 		   		console.error(error);
@@ -72,7 +72,7 @@ router.ws('/connected', function(ws, req) {
 
 
 // ------------------------------------
-// WebSocket Humidity 
+// WebSocket Humidity
 // ------------------------------------
 router.ws('/humidity/:uuid', function(ws, req) {
 
@@ -96,7 +96,7 @@ router.ws('/humidity/:uuid', function(ws, req) {
 		var obj = {};
 
 		obj[uuid] = {
-	   		temperature: temperature, 
+	   		temperature: temperature,
 	   		humidity: humidity
 	   	};
 
@@ -109,7 +109,7 @@ router.ws('/humidity/:uuid', function(ws, req) {
 });
 
 // ------------------------------------
-// WebSocket Pressure 
+// WebSocket Pressure
 // ------------------------------------
 router.ws('/barometricPressure/:uuid', function(ws, req) {
 
@@ -144,7 +144,7 @@ router.ws('/barometricPressure/:uuid', function(ws, req) {
 });
 
 // ------------------------------------
-// WebSocket irTemperature 
+// WebSocket irTemperature
 // ------------------------------------
 router.ws('/irTemperature/:uuid', function(ws, req) {
 
@@ -168,7 +168,7 @@ router.ws('/irTemperature/:uuid', function(ws, req) {
 		var obj = {};
 
 		obj[uuid] = {
-	    	objectTemperature: objectTemperature, 
+	    	objectTemperature: objectTemperature,
 	    	ambientTemperature: ambientTemperature
 	    };
 
@@ -179,8 +179,6 @@ router.ws('/irTemperature/:uuid', function(ws, req) {
 	   	});
 	});
 });
-
-
 
 function tagDiscovery(tag) {
 
@@ -210,7 +208,6 @@ function tagDiscovery(tag) {
 	    start_discover();
 	});
 
-
 	function watchDog() {
 
 		if(watchDogFlag) {
@@ -220,10 +217,10 @@ function tagDiscovery(tag) {
 		}
 	}
 
-	function connectAndSetUpMe() {			
-    	
+	function connectAndSetUpMe() {
+
     	global.logging(tag.address + '(' + tag.type +') connectAndSetUp');
-    	tag.connectAndSetUp(enableService);		
+    	tag.connectAndSetUp(enableService);
 
     	device_info[tag.uuid] = {
     		id        : tag.id,
@@ -239,8 +236,8 @@ function tagDiscovery(tag) {
     	setTimeout(watchDog, timeoutVar);
     }
 
-    function enableService(error) {		
-		
+    function enableService(error) {
+
 		if ( error != undefined ) {
 			console.error('ERROR connectAndSetUpMe!');
 		}
@@ -266,14 +263,6 @@ function tagDiscovery(tag) {
     		tag.notifyBarometricPressure();
     	});
 
-    	// For BB8
-    	tag.enableGyroscope(function() {
-    		tag.setGyroscopePeriod(gyro_period, function(error){
-    			console.error(error);
-    		});
-    		tag.notifyGyroscope();
-    	});
-
     	tag.notifySimpleKey(listenForButton);
 
     	// Mark connected
@@ -289,14 +278,6 @@ function tagDiscovery(tag) {
     	// Resume Scan
     	start_discover();
     }
-
-    tag.on('gyroscopeChange', function(x, y, z) {
-    	console.log('%s %s %s', x, y, z);
-    	var angle_x = (x * 1.0) / (65536/ 500);
-    	var angle_y = (y * 1.0) / (65536/ 500);
-    	var angle_z = (z * 1.0) / (65536/ 500);
-    	console.log('angle %s %s %s', angle_x, angle_y, angle_z);
-    });
 
 	// when you get a button change, print it out:
 	function listenForButton() {
@@ -320,7 +301,6 @@ function tagDiscovery(tag) {
 			}
 	   });
 	}
-
 }
 
 function start_discover() {

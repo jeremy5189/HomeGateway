@@ -8,7 +8,7 @@ var express  = require('express'),
 // Web Socket Support
 var expressWs = require('express-ws')(app);
 
-// Handle Event 
+// Handle Event
 var EventEmitter  = require('events').EventEmitter;
 global.events     = new EventEmitter();
 global.DOC_ROOT   = '/home/pi/HomeGateway';
@@ -31,20 +31,20 @@ global.sound   = function (str) {
 }
 
 global.run_cmd = function (cmd, args, callback) {
-    
+
     // global.logging('cmd = ' + cmd);
     /*
     var spawn = require('child_process').spawn,
         child = spawn(cmd, args),
         resp = "";
 
-    child.stdout.on('data', function (buffer) { 
-        resp += buffer.toString() 
+    child.stdout.on('data', function (buffer) {
+        resp += buffer.toString()
     });
 
-    child.stdout.on('end', function() { 
+    child.stdout.on('end', function() {
         if(callback)
-            callback(resp) 
+            callback(resp)
     });*/
 }
 
@@ -55,34 +55,34 @@ var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
 }
-    
+
 // ------------------
-// Load Module 
+// Load Module
 // ------------------
-//var lock    = require('./routes/lock');
-//var photo   = require('./routes/photo');
+var lock      = require('./routes/lock');
+var photo     = require('./routes/photo');
 var sensortag = require('./routes/sensortag');
 var bb8       = require('./routes/bb8');
 
-//app.use('/lock'  , lock);
-//app.use('/photo' , photo);
+app.use('/lock'  , lock);
+app.use('/photo' , photo);
 app.use('/sensortag', sensortag);
 app.use('/bb8'      , bb8);
 app.use(allowCrossDomain);
 
 
 // ------------------
-// Index 
+// Index
 // ------------------
 app.get('/', function (req, res) {
     res.send('Home Gateway');
 });
 
 // ------------------
-// Start Express 
+// Start Express
 // ------------------
 app.listen(PORT, function () {
-    
+
     logging('HomeGateway listening on port 3000');
-    
+
 });

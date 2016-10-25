@@ -8,11 +8,10 @@ var express    = require('express'),
     bb8        = sphero(bb8_address),
     bb8_status = false;
 
-
 global.events.on('tag_all_connected', bb8_init);
 
 function bb8_init() {
-		
+
 	global.logging('tag_all_connected event invoked');
 	bb8.connect(bb8_connected);
 }
@@ -68,7 +67,7 @@ router.ws('/control', function(ws, req) {
 				bb8_stop();
 				break;
 			default:
-				break; 
+				break;
 		}
 	});
 });
