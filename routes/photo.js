@@ -19,15 +19,15 @@ router.get('/record', function(req, res) {
       img  = fs.readFileSync(path);
 
   res.writeHead(200, {'Content-Type': 'image/jpeg'});
-  res.end(img, 'binary'); 
-  
+  res.end(img, 'binary');
+
 });
 
 // ------------------------------------------------------
 // Take Photo (With option ?event=open to not return)
 // ------------------------------------------------------
 router.get('/photo', function(req, res) {
-  
+
     global.logging('GET /photo ip = ' + req.ip);
 
     // If event == open then dont return photo in res
@@ -37,11 +37,11 @@ router.get('/photo', function(req, res) {
         event = req.query.event;
 
     var fn, ts = (new Date().getTime());
-  
+
     if( event == 'open' ) {
         global.logging('event = open');
         fn = DOC_ROOT + '/photo/' + event + '/' + ts + '.jpg';
-    } 
+    }
     else {
         fn = '/tmp/' + ts + '.jpg';
     }
@@ -54,7 +54,7 @@ router.get('/photo', function(req, res) {
         '800',
         '-h',
         '600',
-	'-hf',
+	    '-hf',
         '-n'
     ], function() {
 
@@ -64,9 +64,9 @@ router.get('/photo', function(req, res) {
 	    	    var fs  = require('fs');
 	    	    var img = fs.readFileSync(fn);
 	    	    res.writeHead(200, {'Content-Type': 'image/jpeg' });
-	    	    res.end(img, 'binary'); 
+	    	    res.end(img, 'binary');
         }
-  
+
     });
 
     // Send back record photo name to let db save it first

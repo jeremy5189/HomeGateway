@@ -118,7 +118,7 @@ function ifttt_watcher() {
         .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
         .send(obj)
         .end(function (response) {
-            global.logging(response.body);
+            global.logging('unirest status: ' + response.status);
         });
     }
 
@@ -130,8 +130,32 @@ function ifttt_watcher() {
 
     }
 
-    function email_photo() {
+    function email_photo(obj) {
 
+        var unirest = require('unirest');
+
+        var fn, ts = (new Date().getTime());
+        fn = '/tmp/' + ts + '.jpg';
+
+        global.logging('Photo fn = ' + fn);
+        global.run_cmd('raspistill', [
+            '-o',
+            fn,
+            '-w',
+            '800',
+            '-h',
+            '600',
+    	    '-hf',
+            '-n'
+        ], function() {
+            unirest.post(config.email_api)
+            .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+            .send(obj)
+            .attach(fn)
+            .end(function (response) {
+                global.logging('unirest status: ' + response.status);
+            });
+        });
     }
 }
 
