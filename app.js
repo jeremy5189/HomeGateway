@@ -62,18 +62,23 @@ var allowCrossDomain = function(req, res, next) {
 // ------------------
 var lock;
 var photo;
+var bb8;
 var sensortag = require('./routes/sensortag');
-var bb8       = require('./routes/bb8');
 var ifttt     = require('./routes/ifttt');
 
 if ( !local ) {
     lock  = require('./routes/lock');
     photo = require('./routes/photo');
     app.use('/lock'  , lock);
-    app.use('/photo'    , photo);
+    app.use('/photo' , photo);
 }
+
+if ( config.enable_bb8 ) {
+    bb8 = require('./routes/bb8');   
+    app.use('/bb8', bb8);
+}
+
 app.use('/sensortag', sensortag);
-app.use('/bb8'      , bb8);
 app.use('/ifttt'    , ifttt);
 app.use(allowCrossDomain);
 

@@ -1,5 +1,6 @@
 {
     "local" : true,
+    "enable_bb8" : false,
     "port"  : 3000,
     "ifttt_sleep_sec" : 10000,
     "doc_root" : "/home/pi/HomeGateway",
