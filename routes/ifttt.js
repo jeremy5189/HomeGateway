@@ -62,23 +62,23 @@ function ifttt_watcher() {
                 switch (conditions[index].opr) {
                     case '>':
                         if( global.ifttt_data[uuid][attr] > conditions[index].value )
-                            invoke_then(conditions[index].then);
+                            invoke_then(conditions[index]);
                         break;
                     case '<':
                         if( global.ifttt_data[uuid][attr] < conditions[index].value )
-                            invoke_then(conditions[index].then);
+                            invoke_then(conditions[index]);
                         break;
                     case '=':
                         if( global.ifttt_data[uuid][attr] = conditions[index].value )
-                            invoke_then(conditions[index].then);
+                            invoke_then(conditions[index]);
                         break;
                     case '>=':
                         if( global.ifttt_data[uuid][attr] >= conditions[index].value )
-                            invoke_then(conditions[index].then);
+                            invoke_then(conditions[index]);
                         break;
                     case '<=':
                         if( global.ifttt_data[uuid][attr] <= conditions[index].value )
-                            invoke_then(conditions[index].then);
+                            invoke_then(conditions[index]);
                         break;
                 }
 
@@ -88,8 +88,50 @@ function ifttt_watcher() {
         }
     }
 
-    function invoke_then(type) {
-        global.logging('IFTTT invoke_then: ' + type);
+    function invoke_then(obj) {
+
+        global.logging('IFTTT invoke_then: ' + obj.then);
+
+        switch (obj.then) {
+            case 'email':
+                email(obj);
+                break;
+            case 'speaker':
+                speaker(obj);
+                break;
+            case 'open_door':
+                open_door();
+                break;
+            case 'email_photo':
+                email_photo(obj);
+                break;
+            default:
+                break;
+        }
+    }
+
+    function email(obj) {
+
+        var unirest = require('unirest');
+
+        unirest.post(config.email_api)
+        .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+        .send(obj)
+        .end(function (response) {
+            global.logging(response.body);
+        });
+    }
+
+    function speaker(obj) {
+
+    }
+
+    function open_door() {
+
+    }
+
+    function email_photo() {
+
     }
 }
 

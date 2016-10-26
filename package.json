@@ -24,6 +24,7 @@
     "mysql": "^2.11.1",
     "sensortag": "^1.2.2",
     "sphero": "^0.9.2",
+    "unirest": "^0.5.1",
     "xpc-connection": "^0.1.4"
   }
 }

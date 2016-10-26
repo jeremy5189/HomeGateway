@@ -2,7 +2,8 @@
     "local" : true,
     "port"  : 3000,
     "ifttt_sleep_sec" : 10000,
-    "doc_root": "/home/pi/HomeGateway",
+    "doc_root" : "/home/pi/HomeGateway",
+    "email_api": "http://localhost/api/notify/manager",
     "db": {
         "host": "127.0.0.1",
         "user": "",
