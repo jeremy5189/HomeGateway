@@ -4,6 +4,9 @@
     "ifttt_sleep_sec" : 10000,
     "doc_root" : "/home/pi/HomeGateway",
     "email_api": "http://localhost/api/notify/manager",
+    "bb8_address_osx": "e146c3a8db364a6c9ff2ae739401ddd8",
+    "bb8_address": "ec:98:74:81:1c:5e",
+    "expected_tag_count" : 2,
     "db": {
         "host": "127.0.0.1",
         "user": "",

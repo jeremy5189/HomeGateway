@@ -15,7 +15,7 @@ var EventEmitter  = require('events').EventEmitter;
 global.events     = new EventEmitter();
 global.DOC_ROOT   = config.doc_root;
 global.connected_tag_count = 0;
-global.expected_tag_count  = 2;
+global.expected_tag_count  = config.expected_tag_count;
 
 global.logging = function (str) {
 

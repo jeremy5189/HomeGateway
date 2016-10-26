@@ -1,12 +1,10 @@
 'use strict';
 
-//var bb8_address = 'e146c3a8db364a6c9ff2ae739401ddd8';
-var bb8_address = 'ec:98:74:81:1c:5e';
-
 var express     = require('express'),
+    config      = require('../config');
     router      = express.Router(),
     sphero      = require("sphero"),
-    bb8         = sphero(bb8_address),
+    bb8         = sphero(config.bb8_address),
     bb8_status  = false,
     ping_handle = null;
 
@@ -52,9 +50,9 @@ function bb8_connected() {
 
 function bb8_ping() {
 	global.logging('bb8 ping');
-	
+
 	bb8.ping(function(err, data) {
-    	
+
     	if(err)
     		console.error(err);
 
@@ -137,7 +135,7 @@ function bb8_calibrate_finish() {
 }
 
 function bb8_reconnect() {
-	
+
 	bb8_disconnect();
 
 	// Wait and reconnect again

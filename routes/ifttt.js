@@ -123,11 +123,18 @@ function ifttt_watcher() {
     }
 
     function speaker(obj) {
-
+        var target = obj.if.split('.')[1];
+        global.run_cmd('aplay', [config.doc_root + '/sound/alert/' + target + '.wav']);
     }
 
     function open_door() {
+        global.run_cmd(config.doc_root  + '/scripts/unlock.sh', [], function(output) {
+            setTimeout(function() {
+                global.run_cmd(config.doc_root  + '/scripts/lock.sh', [], function(output) {
 
+                });
+            }, 3000);
+        });
     }
 
     function email_photo(obj) {
