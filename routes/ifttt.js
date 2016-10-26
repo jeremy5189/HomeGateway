@@ -69,7 +69,7 @@ function ifttt_watcher() {
                             invoke_then(conditions[index]);
                         break;
                     case '=':
-                        if( global.ifttt_data[uuid][attr] = conditions[index].value )
+                        if( global.ifttt_data[uuid][attr] == conditions[index].value )
                             invoke_then(conditions[index]);
                         break;
                     case '>=':

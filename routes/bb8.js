@@ -1,7 +1,7 @@
 'use strict';
 
 var express     = require('express'),
-    config      = require('../config');
+    config      = require('../config'),
     router      = express.Router(),
     sphero      = require("sphero"),
     bb8         = sphero(config.bb8_address),
