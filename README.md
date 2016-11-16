@@ -1,8 +1,8 @@
 # HomeGateway
 
-### A project under the [Social Intelligence Smartlock (SIS)](http://sis.patricks.tw)
+### A project under the [Social Intelligence Smart-device (SIS)](http://sis.patricks.tw)
 
-Raspberry Pi Home Gateway, Currently supports QR Code reader, Electro Lock and TI Sensortag
+Raspberry Pi Home Gateway, Currently supports QR Code reader, Electro Lock and TI Sensortag, bb8, ifttt. See `routes/*.js` for seperate function code.
 
 For the Web Interface, Please checkout [GatewayManager](https://github.com/jeremy5189/GatewayManager)
 
